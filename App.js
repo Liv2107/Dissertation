@@ -1,25 +1,29 @@
 import PhotoPreview from './PhotoPreview.js';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 
-import { CameraView, Camera, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, Camera, useCameraPermissions } from 'expo-camera';
 import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
 
-  const [permission, requestPermission] = useState(null);
-  const [facing, setFacing] = useState("back");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState('back');
 
   const [photo, setPhoto] = useState(null);
   const cameraRef = useRef(null);
 
-  
+  useEffect(() => {
+    if(permission == null){
+      requestPermission();
+    }
+  }, [permission]);
 
   if(!permission){
     return <View />;
   }
-  if(!permission.granted){
+  if(permission && !permission.granted){
 
     return (
       <View style={styles.container}>
@@ -30,7 +34,7 @@ export default function App() {
   }
 
   function toggleCameraFacing(){
-    setFacing(current => (current === "back" ? "front" : "back"));
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
   const captureImage = async () => {
 
@@ -52,7 +56,7 @@ export default function App() {
 
     <View style={styles.container}>
 
-      <CameraView style={styles.camera} facing={facing}>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
