@@ -1,4 +1,4 @@
-import PhotoPreview from 'PhotoPreview.js';
+import PhotoPreview from './PhotoPreview.js';
 
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
@@ -9,7 +9,7 @@ import { StatusBar } from 'expo-status-bar';
 export default function App() {
 
   const [permission, requestPermission] = useState(null);
-  const [facing, setFacing] = useState(CameraType.back);
+  const [facing, setFacing] = useState("back");
 
   const [photo, setPhoto] = useState(null);
   const cameraRef = useRef(null);
@@ -30,7 +30,7 @@ export default function App() {
   }
 
   function toggleCameraFacing(){
-    setFacing(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+    setFacing(current => (current === "back" ? "front" : "back"));
   }
   const captureImage = async () => {
 
@@ -47,8 +47,6 @@ export default function App() {
   if(photo){
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage}/>
   }
-
-
 
   return (
 
