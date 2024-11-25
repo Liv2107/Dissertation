@@ -14,6 +14,8 @@ export default function App() {
   const [photo, setPhoto] = useState(null);
   const cameraRef = useRef(null);
 
+  // Testing comment for version control.
+
   useEffect(() => {
     if(permission == null){
       requestPermission();
