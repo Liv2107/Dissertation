@@ -3,7 +3,7 @@ import { Camera } from 'expo-camera';
 import React from 'react';
 import { Text, TouchableOpacity, SafeAreaView, Image, View, StyleSheet } from 'react-native';
 
-const PhotoPreview = ({ photo, recaptureImage, photoDataAllocation }) => {
+const PhotoPreview = ({ photo, recaptureImage, search }) => {
 
     if (!photo || !photo.base64) {
         return <Text>Loading...</Text>; 
@@ -24,7 +24,7 @@ const PhotoPreview = ({ photo, recaptureImage, photoDataAllocation }) => {
         </View>
 
         <View style={styles.OKbuttonContainer}>
-            <TouchableOpacity style={styles.buttonContainer} onPress={photoDataAllocation}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={search}>
                 <Text style={styles.buttonText}>OK</Text>
             </TouchableOpacity>
         </View>
