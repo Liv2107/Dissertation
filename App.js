@@ -66,9 +66,9 @@ export default function App() {
     // int photos[10] = [IDs of 10 products in the database that match]
 
     //if(photos != null){
-
       //<ResultsScreen photos={photos} />
     //}
+
   }
 
   return (

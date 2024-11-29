@@ -17,3 +17,6 @@ const ResultsScreen = ({photos}) => {
     // later tasks include:
     // filtering the products, eg  only Maybeline, products that cost less then $10.
 }
+const styles = StyleSheet.create({
+
+});
