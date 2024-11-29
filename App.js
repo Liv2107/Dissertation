@@ -45,13 +45,24 @@ export default function App() {
       const options = {quality: 1, base64: true, exif: true};
       const currentPhoto = await cameraRef.current.takePictureAsync(options);
 
-      setPhoto(currentPhoto);
+      setPhoto(currentPhoto); // new photo has been set.
     }
   };
   const recaptureImage = () => setPhoto(null);
 
   if(photo){
-    return <PhotoPreview photo={photo} recaptureImage={recaptureImage}/>
+    return <PhotoPreview photo={photo} recaptureImage={recaptureImage} photoDataAllocation={photoDataAllocation}/>
+  }
+
+  function photoDataAllocation(){
+    // assigning the photo to the database and produce results screen.
+
+    if(photo != null){
+
+      //database
+
+      //ResultsScreen(); - show results (products).
+    }
   }
 
   return (
@@ -62,7 +73,7 @@ export default function App() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip camera</Text>
+            <Text style={styles.text}>Flip</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={captureImage}>
@@ -91,15 +102,18 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
+    height: 75,
     alignSelf: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 10,
-    backgroundColor: 'gray',
+    backgroundColor: 'lightgray',
     borderRadius: 10,
   },
   text: {
-    fontSize: 24,
+    color: 'black',
+    fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
+    textAlign: 'center',
   },
 });
