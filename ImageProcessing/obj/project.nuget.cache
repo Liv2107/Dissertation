@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "qfZ+3qWMdVU=",
+  "success": true,
+  "projectFilePath": "d:\\LBU\\Year 3\\Dissertation\\App development\\React native jobs\\ProductionProjectDevelopment\\ImageProcessing\\ImageProcessing.sqlproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Olivia Emms\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\Olivia Emms\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net46\\1.0.0\\microsoft.netframework.referenceassemblies.net46.1.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
