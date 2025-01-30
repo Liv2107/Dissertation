@@ -34,7 +34,7 @@ target_height = 120
 scale = height/target_height
 
 downscaledImage = cv2.resize(croppedImage, (int(width/scale), int(height/scale)), interpolation = cv2.INTER_AREA)
-cv2.imwrite("Images/cropped_downscaled_image.jpg", downscaledImage, (cv2.IMWRITE_JPEG_QUALITY, 100))
+cv2.imwrite("Images/cropped_downscaled_image.jpg", downscaledImage, (cv2.IMWRITE_JPEG_QUALITY, 95))
 #cv2.imshow('cropped', croppedImage) 
 #cv2.imshow('downscaled', downscaledImage) 
 #cv2.waitKey(0) 
@@ -43,8 +43,10 @@ cv2.imwrite("Images/cropped_downscaled_image.jpg", downscaledImage, (cv2.IMWRITE
 
 # convert image to a colour space like Lab.
 
-RGBImage = 0
-LabImage = 0
+LabValues = cv2.cvtColor(downscaledImage, cv2.COLOR_BGR2Lab)
+RGBValues = cv2.cvtColor(downscaledImage, cv2.COLOR_BGR2RGB)
+#print(LabValues)
+#print(RGBValues)
 
 # use average colour of all the pixles in the photo.
 
