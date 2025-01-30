@@ -52,23 +52,7 @@ export default function App() {
   const recaptureImage = () => setPhoto(null);
 
   if(photo){
-    return <PhotoPreview photo={photo} recaptureImage={recaptureImage} search={search}/>
-  }
-
-  function search(){
-    // produce results screen.
-
-    // when OK is pressed the photo should be matched with products. - ML model should return a list of matched products.
-    // the list then selects the top 10 closest matches.
-
-    // firstly lets search the database and produce 10 random images with product name, etc. 
-
-    // int photos[10] = [IDs of 10 products in the database that match]
-
-    //if(photos != null){
-      //<ResultsScreen photos={photos} />
-    //}
-
+    return <PhotoPreview photo={photo} recaptureImage={recaptureImage}/>
   }
 
   return (
