@@ -13,6 +13,7 @@ const PhotoPreview = ({ photo, recaptureImage }) => {
         return <ResultsScreen photo={photo}/>
     }
 
+    // add a small square for where the photo will be later resized to for more accurate results.
 
     return (
     <SafeAreaView style={styles.container}>
