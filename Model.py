@@ -5,14 +5,11 @@ import cv2
 shades = pd.read_csv('datasets/FoundationShades/allCategories.csv')
 
 image = "Images/example_image.jpeg"  # eventually will be a select method to take from the imagecapturehub database.
-
 image = cv2.imread(image)
-
 height, width, channels = image.shape
 
 print(type(image))
 print("Height: ", height, ", Width: ", width, ", Channels: ", channels)
-
 #Display the image
 #cv2.imshow('image', image)
 #cv2.waitKey(0)
@@ -48,12 +45,25 @@ RGBValues = cv2.cvtColor(downscaledImage, cv2.COLOR_BGR2RGB)
 #print(LabValues)
 #print(RGBValues)
 
-# use average colour of all the pixles in the photo.
+
+# Average colour of all pixles.
+
+avgLab = np.mean(LabValues.reshape(-1, 3), axis=0)
+avgRGB = np.mean(RGBValues.reshape(-1, 3), axis=0)
+
+# Individual values.
+lightness = avgLab[0]
+R, G, B = avgRGB
 
 # get values - hex (rgb) and lightness (Lab) values
 
-rgbValues = RGBImage
-lightness = LabImage
+try:
+    R, G, B = int(R), int(G), int(B)
+except:
+    print("An integer error occured.")
+
+hex_colour = "#{:02x}{:02x}{:02x}".format(R, G, B)
+
 
 # Colour similarity - eg - Delta E or euclidean distance with rgb but delta is a lot more accuracte. 
 
