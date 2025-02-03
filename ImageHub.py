@@ -1,0 +1,1 @@
+# start writing a database with sqlite 3

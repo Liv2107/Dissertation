@@ -4,6 +4,8 @@ import cv2
 
 from colormath.color_diff import delta_e_cie2000
 
+
+
 shades = pd.read_csv('datasets/FoundationShades/allCategories.csv')
 
 image = "Images/example_image.jpeg"  # eventually will be a select method to take from the imagecapturehub database.
@@ -105,11 +107,42 @@ lightness = find_lightness(avgLab)
 # Colour similarity - eg - Delta E or euclidean distance with rgb but delta is a lot more accuracte. 
 # pip install colormath pandas
 
+from colormath.color_objects import sRGBColor, LabColor
+from colormath.color_conversions import convert_color
 
 
-# search the database for the closest match
+# convert hex values to lab to find lightness for delta e calculation
 
-closestMatch = 0 # Delta E (using rgbValues and lightness)
+def hex2lab(hex):
+    RGBValues = sRGBColor.new_from_rgb_hex(hex)
+    LabValues = convert_color(RGBValues, LabColor)
+    return LabValues 
+    
+shades["lab"] = shades["hex"].apply(hex2lab) # new column of Lab values.
 
-# this information then will need to be returned from 
 
+
+# Calculating delta_e using lab values comparing the users image to the shades avaliable.
+
+h, w, c = LabValues.shape
+
+Lab_Color = LabValues[h//2, w//2]  # Select centre pixel (L, a, b)
+Lab_Color = LabColor(*Lab_Color) # Both values have to be seen as Lab Color objects.
+
+print("Lab_Color ", type(Lab_Color))
+print("shades ", type(shades["lab"]))
+
+
+def delta_e(lab_value):
+
+    if isinstance(lab_value, LabColor):
+        return delta_e_cie2000(Lab_Color, lab_value)
+    else:
+        raise ValueError(f"Expected LabColor object, but got {type(lab_value)}")
+
+shades["delta_e"] = shades["lab"].apply(delta_e)
+
+
+
+closestMatch = shades.nsmallest(1,"delta_e") # Delta E 
+print(closestMatch)
