@@ -1,5 +1,6 @@
 {
     "dataworkspace.excludedProjects": [
         "ImageProcessing/ImageProcessing.sqlproj"
-    ]
+    ],
+    "cmake.sourceDirectory": "D:/LBU/Year 3/Dissertation/App development/React native jobs/ProductionProjectDevelopment/node_modules/expo-modules-core/android"
 }

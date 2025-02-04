@@ -3,53 +3,88 @@ import ResultsScreen from './ResultsScreen.js';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
+import { Camera, useCameraDevices, useCameraPermission } from 'react-native-vision-camera';
 
-import { CameraView, Camera, useCameraPermissions } from 'expo-camera';
-import { StatusBar } from 'expo-status-bar';
+//import { CameraView, Camera, useCameraPermissions } from 'expo-camera';
+//import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
 
-  const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState('back');
-
+  const { isGranted, requestPermission } = useCameraPermission();
+  const devices  = useCameraDevices()
+  const [device, setDevice] = useState(null);
   const [photo, setPhoto] = useState(null);
   const cameraRef = useRef(null);
 
-  // Testing comment for version control.
+
+  //const device = useCameraDevice(facing === 'back' ? 'back' : 'front'); // finding the device being used.
+
+
 
   useEffect(() => {
-    if(permission == null){
-      requestPermission();
+    (async () => {
+      if (!isGranted) {
+        await requestPermission();
+      }
+    })();
+  }, [isGranted]);
+
+
+  useEffect(() => {
+    if(devices.back && !device) {
+      setDevice(devices.back);
     }
-  }, [permission]);
+  }, [devices, device]);
 
-  if(!permission){
-    return <View />;
-  }
-  if(permission && !permission.granted){
 
+  if (!isGranted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant permission"/>
+        <Text style={styles.message}>We need your permission to access the camera</Text>
+        <Button onPress={requestPermission} title="Grant Permission" />
       </View>
     );
   }
 
-  function toggleCameraFacing(){
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  if (!devices || !devices.back || !devices.front) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>No camera device found</Text>
+      </View>
+    );
   }
-  const captureImage = async () => {
 
-    if(cameraRef.current){
 
-      const options = {quality: 1, base64: true, exif: true};
-      const currentPhoto = await cameraRef.current.takePictureAsync(options);
+  function toggleCameraFacing() {
+    if (!devices?.back || !devices?.front) return;
+    setDevice((current) => (current === devices.back ? devices.front : devices.back));
+  }
 
-      setPhoto(currentPhoto); // new photo has been set.
+
+  const captureImage = async () => { // used to pause excecution using the await command.
+
+    if (cameraRef.current) {
+
+      try {
+        const photo = await cameraRef.current.takePhoto();
+        setPhoto(photo);
+
+      } catch (error) {
+        console.error('Error taking photo:', error);
+      }
     }
   };
+
+
   const recaptureImage = () => setPhoto(null);
+
+  if(!device){
+    return(
+      <View style={styles.container}>
+        <Text style={styles.message}>Loading camera...</Text>
+      </View>
+    )
+  }
 
   if(photo){
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage}/>
@@ -59,7 +94,7 @@ export default function App() {
 
     <View style={styles.container}>
 
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+      <Camera style={styles.camera} ref={cameraRef} device={device} isActive={true} photo={true}>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
@@ -71,10 +106,11 @@ export default function App() {
           </TouchableOpacity>
         </View>
 
-      </CameraView>
+      </Camera>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -85,18 +121,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonContainer: {
-    flex: 1,
+    position: 'absolute',
+    bottom: 50,
     flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
   button: {
-    flex: 1,
-    height: 75,
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
+    padding: 15,
     backgroundColor: 'lightgray',
     borderRadius: 10,
   },
