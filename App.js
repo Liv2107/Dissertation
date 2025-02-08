@@ -17,10 +17,7 @@ export default function App() {
   const cameraRef = useRef(null);
 
 
-  //const device = useCameraDevice(facing === 'back' ? 'back' : 'front'); // finding the device being used.
-
-
-
+  
   useEffect(() => {
     (async () => {
       if (!isGranted) {
@@ -86,7 +83,7 @@ export default function App() {
     )
   }
 
-  if(photo){
+  if(photo){ // links PhotoPreview here.
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage}/>
   }
 
