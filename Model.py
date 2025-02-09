@@ -8,7 +8,6 @@ import cv2
 from colormath.color_diff import delta_e_cie2000
 
 
-
 shades = pd.read_csv('datasets/FoundationShades/allCategories.csv')
 
 image = "Images/example_image.jpeg"  # eventually will be a select method to take from the imagecapturehub database.
@@ -24,45 +23,33 @@ print("Height: ", height, ", Width: ", width, ", Channels: ", channels)
 
 
 
-# use open cv to crop the image to a small patch of skin.
+def imagePreProcessing(image):
 
-def crop_image(image):
-    return image[1412:1612, 1916:2116]  
- 
-croppedImage = crop_image(image)
+    # cropping and downscaling
 
-
-
-# downscale the image for easier processing.
-
-def downscale_image(image):
+    croppedImage = image[1412:1612, 1916:2116] 
 
     target_height = 120
     scale = height/target_height
 
     downscaledImage = cv2.resize(croppedImage, (int(width/scale), int(height/scale)), interpolation = cv2.INTER_AREA)
     cv2.imwrite("Images/cropped_downscaled_image.jpg", downscaledImage, (cv2.IMWRITE_JPEG_QUALITY, 95))
+
     return downscaledImage
 
-downscaledImage = downscale_image(croppedImage)
+finalImage = imagePreProcessing(image)
 
 
 
 # convert image to a colour space like Lab.
 
 def find_RGB_values(image):
-    return cv2.cvtColor(downscaledImage, cv2.COLOR_BGR2RGB)
-
-RGBValues = find_RGB_values(downscaledImage)
-
+    return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 def find_Lab_values(image):
-    return cv2.cvtColor(downscaledImage, cv2.COLOR_BGR2Lab)
+    return cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
 
-LabValues = find_Lab_values(downscaledImage)
-
-#print(LabValues)
-#print(RGBValues)
-
+RGBValues = find_RGB_values(finalImage)
+LabValues = find_Lab_values(finalImage)
 
 
 # Average colour of all pixles.
@@ -118,34 +105,39 @@ from colormath.color_conversions import convert_color
 
 def hex2lab(hex):
     RGBValues = sRGBColor.new_from_rgb_hex(hex)
-    LabValues = convert_color(RGBValues, LabColor)
-    return LabValues 
+    return convert_color(RGBValues, LabColor)
+
     
 shades["lab"] = shades["hex"].apply(hex2lab) # new column of Lab values.
 
-
-
+print(shades.columns)
 # Calculating delta_e using lab values comparing the users image to the shades avaliable.
 
 h, w, c = LabValues.shape
 
-Lab_Color = LabValues[h//2, w//2]  # Select centre pixel (L, a, b)
-Lab_Color = LabColor(*Lab_Color) # Both values have to be seen as Lab Color objects.
+Lab_Color = LabColor(*LabValues[h//2, w//2])  # Select centre pixel (L, a, b)
+print("Center Lab Value:", LabValues[h//2, w//2])
 
 print("Lab_Color ", type(Lab_Color))
 print("shades ", type(shades["lab"]))
+print(shades["lab"].apply(type))  # Check types of all entries
+
 
 
 def delta_e(lab_value):
 
-    if isinstance(lab_value, LabColor):
-        return delta_e_cie2000(Lab_Color, lab_value)
-    else:
-        raise ValueError(f"Expected LabColor object, but got {type(lab_value)}")
+    if not isinstance(lab_value, LabColor):
+        print(f"Unexpected type: {type(lab_value)}")
+        return np.nan  # Return NaN if the value is not correct
+
+    return delta_e_cie2000(Lab_Color, lab_value)
 
 shades["delta_e"] = shades["lab"].apply(delta_e)
+shades = shades.sort_values(by="delta_e", ascending=True)
 
+top_20 = shades.head(20)
+print("Top ten closest matches: ", top_20)
 
-
-closestMatch = shades.nsmallest(1,"delta_e") # Delta E 
-print(closestMatch)
+print("hex, lightness of image: ", get_hex(R, G, B), find_lightness(avgLab))
+name_brand_hex_lightness = top_20[['name', 'brand', 'hex', 'lightness']]
+print(name_brand_hex_lightness)
