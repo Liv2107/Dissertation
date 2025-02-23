@@ -26,48 +26,42 @@ CORS(app)
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# currently the model is being sent a base64 file object but we arnt trying to read that. make adjustments for base64
 
 # Model
 @app.route('/top_20', methods=['POST'])
 def ImageProcessing():
 
+    # Loading dataset.
     try:
         shades = pd.read_csv('Datasets/allCategories.csv')
     except FileNotFoundError:
         return jsonify({"error": "Dataset not found"}), 500
 
-    if 'photo' not in request.form:
-        return jsonify({"error": "No image provided"}), 400
-    
-    photo = request.form['photo']
-
-    if photo.startswith('data:image/jpeg;base64,'):
-        photo_data = photo_data[len('data:image/jpeg;base64,'):]
 
     try:
-        photo_binary = base64.b64decode(photo_data)
-    except Exception as e:
-        return jsonify({"error": f"Failed to decode base64: {str(e)}"}), 400
+        photo_data = request.form.get("photo")
 
+        if not photo_data:
+            return jsonify({"error": "No photo data found"}), 400
+        
+        photo_data = photo_data.split(",")[1]
+        photo_bytes = base64.b64decode(photo_data)
+        photo_file = io.BytesIO(photo_bytes)
 
-    if photo and allowed_file(photo.filename):
-        filename = secure_filename(photo.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        photo.save(filepath)
-    else:
-        return jsonify({"error": "Invalid file type or no file selected"}), 400
+        image = Image.open(photo_file)
+        image = image.convert("RGB")
 
-    try:
-        image = Image.open(filepath)
         image = np.array(image)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        print("Image successfully opened:", image.shape)
+
     except Exception as e:
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
 
@@ -94,14 +88,6 @@ def ImageProcessing():
 
     image = downscaledImage
 
-
-    #cv2.imwrite("Images/cropped_downscaled_image.jpg", downscaledImage, (cv2.IMWRITE_JPEG_QUALITY, 95))
-    #print(type(image))
-    #print("Height: ", height, ", Width: ", width, ", Channels: ", channels)
-    #Display the image
-    #cv2.imshow('image', image)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
 
     def RGB_values(image):
         RGBValues = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -145,7 +131,7 @@ def ImageProcessing():
 
     h, w, _ = image.shape
 
-    Lab_Color = LabColor(*Lab[h//2, w//2])  # Select centre pixel (L, a, b)
+    Lab_Color = LabColor(*Lab)  # Select centre pixel (L, a, b)
 
 
     def delta_e(value):
@@ -170,9 +156,3 @@ def ImageProcessing():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-
-# print("hex, lightness of image: ", get_hex(R, G, B), find_lightness(avgLab))
-    # name_brand_hex_lightness = top_20[['name', 'brand', 'hex', 'lightness']]
-    # print(name_brand_hex_lightness)

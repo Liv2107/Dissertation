@@ -45,7 +45,6 @@ export default function Camera() {
       console.log(photo.name)
       console.log(photo.width)
       console.log(photo.height)
-      //console.log(photo)
     
       // Check if photo is valid
       if (!photo || !photo.uri) {
@@ -57,7 +56,7 @@ export default function Camera() {
       const croppedUri = await cropImage(photo.uri);
       if (!croppedUri) {
         console.log("no cropping");
-          return; // Exit if there was an error with the image processing
+        return; // Exit if there was an error with the image processing
       }
       
       const url = "http://192.168.1.100:5000/top_20";
@@ -76,7 +75,7 @@ export default function Camera() {
     
       // Create FormData to send as POST request
       const formData = new FormData();
-      formData.append("photo",  `data:image/jpeg;base64,${photoFile}`);
+      formData.append("photo",  `data:image/jpeg;base64,${photoFile}`); //Base64-encoded data within a FormData object
       
     
       // Send the POST request with FormData
@@ -85,6 +84,7 @@ export default function Camera() {
         body: formData,  // Attach the FormData as the request body
       })
         .then(response => {
+          console.log('Response status:', response.status);
           if (!response.ok) {
             console.error("Failed to send the image");
             alert("Failed to send the image");
@@ -93,6 +93,7 @@ export default function Camera() {
           return response.json();
         })
         .then(data => {
+          console.log('Server response:', data); 
           setResult(data);
         })
         .catch((error) => {
