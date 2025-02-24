@@ -1,5 +1,5 @@
 import PhotoPreview from '@/components/PhotoPreview';
-import Results from './Results';
+import Results from '@/components/Results';
 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
