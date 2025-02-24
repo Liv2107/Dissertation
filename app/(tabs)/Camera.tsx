@@ -4,6 +4,7 @@ import Results from './Results';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -16,26 +17,32 @@ export default function Camera() {
     const cameraRef = useRef<CameraView | null>(null);
     const [result, setResult] = useState(null);
 
+
+
+    // Pre-processing image before sending to the back-end server.
     const cropImage = async (uri: string) => {
       try {
-        // Crop the image to a smaller size (e.g., 1024x1024 starting from the top-left corner)
-        const result = await ImageManipulator.manipulateAsync(
-          uri,
-          [
-            { crop: { originX: 0, originY: 0, width: 1024, height: 1024 } },  // Crop to a 1024x1024 square
-          ],
-          { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }  // Keep it as JPEG without compression
+        const h = 600;
+        const w = 600;
+
+        const x = (photo.width / 2) - (w / 2);
+        const y = (photo.height / 2) - (h / 2); // x and y points to crop the image in the center.
+
+        // Crop the image 
+        const result = await ImageManipulator.manipulateAsync(uri,
+          [{ crop: { originX: x, originY: y, width: w, height: h } },],
+          { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }  // JPEG with 50% compression
         );
     
         console.log('Cropped image URI:', result.uri);
     
-        // Return the URI of the cropped image
+        // URI of the cropped image
         return result.uri;
     
       } catch (error) {
-        console.error('Error cropping image:', error);
-        alert("Error");
-        return null;
+        console.error("Error cropping the image.");
+        alert("Couldn't crop the image.");
+        return;
       }
     };
 
@@ -54,19 +61,21 @@ export default function Camera() {
       }
 
       const croppedUri = await cropImage(photo.uri);
+
       if (!croppedUri) {
-        console.log("no cropping");
-        return; // Exit if there was an error with the image processing
+        console.log("Error in cropping.");
+        alert("Missing cropped image.")
+        return;
       }
       
-      const url = "http://192.168.1.100:5000/top_20";
+
+      const backend_url = "http://192.168.1.100:5000/top_20"; // local IP / API location.
 
       let photoFile;
       try {
-
         photoFile = await FileSystem.readAsStringAsync(croppedUri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
+          encoding: FileSystem.EncodingType.Base64,}); // Converting file into Base64, File object. (expo-file-system)
+
       } catch (error) {
         console.error("Error converting photo to file:", error);
         alert("Error converting photo to file. Check if URI is correct.");
@@ -79,12 +88,12 @@ export default function Camera() {
       
     
       // Send the POST request with FormData
-      fetch(url, {
+      fetch(backend_url, {
         method: 'POST',
         body: formData,  // Attach the FormData as the request body
       })
         .then(response => {
-          console.log('Response status:', response.status);
+          console.log('Response status:', response.status); // check response code.
           if (!response.ok) {
             console.error("Failed to send the image");
             alert("Failed to send the image");
@@ -94,7 +103,7 @@ export default function Camera() {
         })
         .then(data => {
           console.log('Server response:', data); 
-          setResult(data);
+          setResult(data); // Set the results.
         })
         .catch((error) => {
           console.error('Error sending image:', error);
@@ -103,7 +112,7 @@ export default function Camera() {
     };
 
     if (result) {
-      // If there are results, render the Results component and pass props directly
+      // If there are results, render the Results component and pass results from the back-end.
       return <Results result={result} />;
     }
 
@@ -138,7 +147,10 @@ export default function Camera() {
     }
   };
 
-  const recaptureImage = () => setPhoto(null);
+  const recaptureImage = () => {
+    setPhoto(null);
+    setResult(null);
+  };
 
   if (photo) {
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage} backend={backend}/>;
@@ -149,10 +161,10 @@ export default function Camera() {
       <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={captureImage}>
-            <Text style={styles.text}>Capture</Text>
+            <Icon name="camera" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}> Flip </Text>
+            <Icon name="refresh" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -174,7 +186,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 200,
+    bottom: 150,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -183,13 +195,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    padding: 15,
+    borderRadius: 50,
+    marginHorizontal: 10,
   },
 });
