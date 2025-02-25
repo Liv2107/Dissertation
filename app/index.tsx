@@ -7,6 +7,7 @@ import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { useRouter } from 'expo-router';
 
 
 export default function Camera() {
@@ -16,6 +17,7 @@ export default function Camera() {
     const [photo, setPhoto] = useState<any>(null);
     const cameraRef = useRef<CameraView | null>(null);
     const [result, setResult] = useState(null);
+    const router = useRouter();
 
 
 

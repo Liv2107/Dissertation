@@ -148,7 +148,7 @@ def ImageProcessing():
     top_20 = shades.head(20) # find top 20 closest shades
     print("Top ten closest matches: ", top_20)
 
-    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url']].to_dict(orient="records")
+    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex']].to_dict(orient="records")
     print(top_20_info)
 
     return jsonify(top_20_info)
