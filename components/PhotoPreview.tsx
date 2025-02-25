@@ -20,14 +20,17 @@ const PhotoPreview = ({
             />
         </View>
 
+
         <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={recaptureImage}>
-                <Fontisto name='trash' size={36} color='black' />
-            </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={backend}>
-                <Text style={styles.buttonText}>OK</Text>
+                <Text style={styles.buttonText}>Find results</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={recaptureImage}>
+                <Fontisto name='trash' size={30} color='black' />
+            </TouchableOpacity>
+
         </View>
     </SafeAreaView>
 );
@@ -43,22 +46,26 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 1,
         width: '95%',
+        height: '65%',
         backgroundColor: 'darkgray',
         justifyContent: 'center',
         alignItems: "center",
     },
     previewConatiner: {
         width: '95%',
-        height: '85%',
+        height: '95%',
         borderRadius: 15
     },
     buttonContainer: {
         marginTop: '4%',
         flexDirection: 'row',
-        justifyContent: "center",
-        width: '100%',
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: '45%',
+        alignSelf: 'center',
     },
     button: {
+        height: 50,
         backgroundColor: 'gray',
         borderRadius: 25,
         padding: 10,
