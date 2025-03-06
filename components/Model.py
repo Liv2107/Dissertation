@@ -56,9 +56,11 @@ def ImageProcessing():
         photo_file = io.BytesIO(photo_bytes)
 
         image = Image.open(photo_file)
+
         image = image.convert("RGB")
 
         image = np.array(image)
+
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         print("Image successfully opened:", image.shape)
 
@@ -91,10 +93,14 @@ def ImageProcessing():
 
     def RGB_values(image):
         RGBValues = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        print("RGB: ", RGBValues)
         return np.mean(RGBValues.reshape(-1, 3), axis=0)
     def Lab_values(image):
         LabValues = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
-        return np.mean(LabValues.reshape(-1, 3), axis=0)
+        h, w, _ = LabValues.shape
+        central = LabValues[h//4:h*3//4, w//4:w*3//4] # to get the center point
+        print("Lab: ", LabValues)
+        return np.mean(central, axis=(0, 1)) 
 
     RGB = RGB_values(image)
     Lab = Lab_values(image)
@@ -121,34 +127,38 @@ def ImageProcessing():
         RGBValues = sRGBColor.new_from_rgb_hex(hex)
         return convert_color(RGBValues, LabColor)
 
-    
     shades["lab"] = shades["hex"].apply(hex2lab) # new column of Lab values.
 
     if shades.empty or shades["lab"].isnull().all():
         return jsonify({"error": "No valid shades found or image color could not be processed"})
 
-    # Calculating delta_e using lab values comparing the users image to the shades avaliable.
-
-    h, w, _ = image.shape
-
-    Lab_Color = LabColor(*Lab)  # Select centre pixel (L, a, b)
+    Lab_Color = LabColor(*Lab) 
 
 
     def delta_e(value):
-
         if not isinstance(value, LabColor):
-            print(f"Unexpected type: {type(value)}")
+            return np.nan 
+    
+        try:
+            diff = delta_e_cie2000(Lab_Color, value) 
+        
+            if isinstance(diff, (float, int)):
+                return diff
+            else:
+                print(f"Unexpected result from delta_e_cie2000: {diff}") 
+                return np.nan  # Return NaN if the result is not numeric
+            
+        except Exception as e:
+            print(f"Error in delta_e calculation: {e}")
             return np.nan
 
-        return delta_e_cie2000(Lab_Color, value)
+    shades["delta_e"] = shades["lab"].apply(delta_e)
+    shades_sorted = shades.sort_values(by="delta_e", ascending=True) # sort database according to data
 
-    shades["delta_e"] = shades["lab"].apply(delta_e) # apply delta
-    shades = shades.sort_values(by="delta_e", ascending=True) # sort database according to data
-
-    top_20 = shades.head(20) # find top 20 closest shades
+    top_20 = shades_sorted.head(20) # find top 20 closest shades
     print("Top ten closest matches: ", top_20)
 
-    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex']].to_dict(orient="records")
+    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product']].to_dict(orient="records")
     print(top_20_info)
 
     return jsonify(top_20_info)

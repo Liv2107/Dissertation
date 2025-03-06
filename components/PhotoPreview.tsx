@@ -23,8 +23,8 @@ const PhotoPreview = ({
 
         <View style={styles.buttonContainer}>
 
-            <TouchableOpacity style={styles.button} onPress={backend}>
-                <Text style={styles.buttonText}>Find results</Text>
+            <TouchableOpacity style={styles.backendButton} onPress={backend}>
+                <Text style={styles.backendButtonText}>Find results</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={recaptureImage}>
@@ -72,11 +72,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    backendButton: {
+        height: 50,
+        backgroundColor: '#E773B4',
+        borderRadius: 25,
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     buttonText: {
         color: 'black',
         fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'center',
+    },
+    backendButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        padding: 4,
     }
 });
 

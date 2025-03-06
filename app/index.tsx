@@ -48,10 +48,12 @@ export default function Camera() {
 
     const backend = async () => {
 
-      console.log(photo.uri)
-      console.log(photo.name)
-      console.log(photo.width)
-      console.log(photo.height)
+      
+
+      console.log(photo.uri);
+      console.log(photo.name);
+      console.log(photo.width);
+      console.log(photo.height);
     
       // Check if photo is valid
       if (!photo || !photo.uri) {
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   button: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: '#E773B4', // Semi-transparent background
     padding: 15,
     borderRadius: 50,
     marginHorizontal: 10,

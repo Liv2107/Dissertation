@@ -9,6 +9,7 @@ interface Shade {
     imgSrc: string;
     url: string;
     hex: string;
+    product: string;
   }
   
   // Define the type for the props that will be passed to Results component
@@ -23,7 +24,7 @@ interface Shade {
     return (
       <View style={styles.container}>
         <TouchableOpacity style={styles.button} onPress={(recaptureImage)}>
-          <Icon name="home" size={25} color="white" />
+          <Icon style={styles.home} name="home" size={25} color="white" />
         </TouchableOpacity>
 
         <Text style={styles.title}>Top 20 Closest Shades</Text>
@@ -34,7 +35,9 @@ interface Shade {
           renderItem={({ item }) => (
             <View style={styles.card}>
               {/* Display Color Square */}
-              <TouchableOpacity onPress={() => Linking.openURL(item.url)}>
+              <TouchableOpacity onPress={() => {
+                const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(item.brand + ' ' + item.product)}`;
+                Linking.openURL(googleSearch)}}>
                 <View style={[styles.colorBox, { backgroundColor: item.hex }]} />
               </TouchableOpacity>
   
@@ -56,18 +59,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'black',
   },
   button: {
+    width: 50,
+    height: 50,
     position: 'absolute',
     bottom: 20,
     right: 20,
     marginBottom: 15,
     marginRight: 15,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 25,
     zIndex: 1,
-    backgroundColor: 'darkgray',
+    backgroundColor: '#E773B4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+  home: {
+    shadowColor: 'white',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
+    
   },
   title: {
     paddingTop: 25,
@@ -76,19 +91,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
-    color: 'black',
+    color: 'white',
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'darkgray',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 4,
   },
   colorBox: {
@@ -96,6 +107,10 @@ const styles = StyleSheet.create({
     height: 50,
     marginRight: 15,
     borderRadius: 5,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5, 
   },
   textContainer: {
     flex: 1,
@@ -107,7 +122,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    color: 'darkgray',
+    color: 'black',
     marginBottom: 5,
   },
 });
