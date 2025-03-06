@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useRouter, Link } from 'expo-router';
 
 
 interface Shade {
@@ -15,17 +14,17 @@ interface Shade {
   // Define the type for the props that will be passed to Results component
   interface ResultsProps {
     result: Shade[];  // result is an array of Shade objects
+    recaptureImage: () => void;
   }
   
-  const Results: React.FC<ResultsProps> = ({ result }) => {
+  const Results: React.FC<ResultsProps> = ({ result, recaptureImage }) => {
 
-    const router = useRouter();
 
     return (
       <View style={styles.container}>
-        <Link href="../app/index" style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={(recaptureImage)}>
           <Icon name="home" size={25} color="white" />
-        </Link>
+        </TouchableOpacity>
 
         <Text style={styles.title}>Top 20 Closest Shades</Text>
   
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: 'white',
   },
   button: {
     position: 'absolute',
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     zIndex: 1,
-    backgroundColor: 'gray',
+    backgroundColor: 'darkgray',
   },
   title: {
     paddingTop: 25,
@@ -77,12 +76,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center',
-    color: '#333',
+    color: 'black',
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
@@ -104,17 +103,12 @@ const styles = StyleSheet.create({
   brand: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: 'black',
   },
   name: {
     fontSize: 14,
-    color: '#666',
+    color: 'darkgray',
     marginBottom: 5,
-  },
-  url: {
-    fontSize: 14,
-    color: '#007bff',
-    textDecorationLine: 'underline',
   },
 });
 
