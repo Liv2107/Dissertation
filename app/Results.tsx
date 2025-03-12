@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Linking, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Linking, Image, TouchableOpacity, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Link, useRouter  } from 'expo-router';
 
 
 interface Shade {
@@ -15,17 +16,22 @@ interface Shade {
   // Define the type for the props that will be passed to Results component
   interface ResultsProps {
     result: Shade[];  // result is an array of Shade objects
-    recaptureImage: () => void;
+    goHome: () => void;
   }
   
-  const Results: React.FC<ResultsProps> = ({ result, recaptureImage }) => {
+  const Results: React.FC<ResultsProps> = ({ result, goHome }) => {
 
+    const router = useRouter();
+    console.log(router);
 
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={(recaptureImage)}>
-          <Icon style={styles.home} name="home" size={25} color="white" />
-        </TouchableOpacity>
+
+          <Pressable style={styles.button} onPress={goHome}>
+            <Icon style={styles.home} name="home" size={25} color="white" />
+          </Pressable>
+
+
 
         <Text style={styles.title}>Top 20 Closest Shades</Text>
   
@@ -69,8 +75,8 @@ const styles = StyleSheet.create({
     right: 20,
     marginBottom: 15,
     marginRight: 15,
-    padding: 10,
     borderRadius: 25,
+    padding: 12,
     zIndex: 1,
     backgroundColor: 'rgba(231, 115, 180, 0.8)', // #E773B4 in rgb to add transparency.
     justifyContent: 'center',
@@ -78,11 +84,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   home: {
-    shadowColor: 'white',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 4,
-    
   },
   title: {
     paddingTop: 25,

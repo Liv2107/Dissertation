@@ -1,5 +1,5 @@
 import PhotoPreview from '@/components/PhotoPreview';
-import Results from '@/components/Results';
+import Results from './Results';
 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useState, useRef } from 'react';
@@ -119,11 +119,6 @@ export default function Camera() {
         });
     };
 
-    if (result) {
-      // If there are results, render the Results component and pass results from the back-end.
-      return <Results result={result} recaptureImage={recaptureImage} />;
-    }
-
     if (!permission) {
       return <Text>Requesting camera permission...</Text>;
     }
@@ -159,6 +154,16 @@ export default function Camera() {
     setPhoto(null);
     setResult(null);
   };
+
+  const goHome = () => {
+    setPhoto(null);
+    setResult(null);
+  };
+
+  if (result) {
+    // If there are results, render the Results component and pass results from the back-end.
+    return <Results result={result} goHome={goHome} />;
+  }
 
   if (photo) {
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage} backend={backend}/>;
