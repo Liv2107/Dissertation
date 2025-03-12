@@ -117,7 +117,7 @@ def ImageProcessing():
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
     
 
-    RGB = extract_colours(image, skin_mask)
+    RGB = extract_colours(image, skin_mask, 50000)
     print("RGB values: ", RGB)
 
     def get_lab(rgb):
@@ -192,3 +192,8 @@ def ImageProcessing():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+# TODO:
+#     -   home button functioning
+#     -   filtering system - search by brand.
