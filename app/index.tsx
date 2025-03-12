@@ -22,20 +22,28 @@ export default function Camera() {
     // Pre-processing image before sending to the back-end server.
     const cropImage = async (uri: string) => {
       try {
-        const h = 600;
-        const w = 600;
+
+        var w = 1024;
+        var h = 1948; // keeping the ratio
+
+        if(photo.width < w || photo.height < h){
+          h = photo.height;
+          w = photo.width;
+        }
 
         const x = (photo.width / 2) - (w / 2);
         const y = (photo.height / 2) - (h / 2); // x and y points to crop the image in the center.
 
-        // Crop the image 
+        // Crop and lossy compress the image
         const result = await ImageManipulator.manipulateAsync(uri,
           [{ crop: { originX: x, originY: y, width: w, height: h } },],
-          { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }  // JPEG with 50% compression
+          { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, }  // JPEG with less compression then using a small PNG image.
         );
     
         console.log('Cropped image URI:', result.uri);
-    
+        
+        console.log("Rw: ", result.width, ". Rh: ", result.height)
+
         // URI of the cropped image
         return result.uri;
     
@@ -47,8 +55,6 @@ export default function Camera() {
     };
 
     const backend = async () => {
-
-      
 
       console.log(photo.uri);
       console.log(photo.name);
@@ -97,7 +103,7 @@ export default function Camera() {
         .then(response => {
           console.log('Response status:', response.status); // check response code.
           if (!response.ok) {
-            console.error("Failed to send the image");
+            console.error("Failed to send the image: response not ok. - ", response.ok);
             alert("Failed to send the image");
             return;
           }
@@ -197,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   button: {
-    backgroundColor: '#E773B4', // Semi-transparent background
+    backgroundColor: 'rgba(231, 115, 180, 0.8)',
     padding: 15,
     borderRadius: 50,
     marginHorizontal: 10,

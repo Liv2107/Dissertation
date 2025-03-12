@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import cv2
 import os
+import random
 
 # Colour similarity - eg - Delta E or euclidean distance with rgb but delta is a lot more accurate. 
 from colormath.color_diff import delta_e_cie2000
@@ -32,6 +33,47 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def extract_colours(image, skin_mask, num=5):
+        
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        skin_pixels = np.column_stack(np.where(skin_mask > 0)) # where there is skin.
+        sampled_pixels = random.sample(list(skin_pixels), num) # random pixel locations.
+        
+        color_samples = []
+        for y, x in sampled_pixels:
+            color_samples.append(image[y, x]) # list of rgb values of 5 random pixels.
+
+        avg_color = np.mean(color_samples, axis=0) # average of them 5 pixels.
+
+        print(f"Extracted Colors (RGB): {color_samples}")
+        print(f"Average Skin Color (RGB): {avg_color.astype(int)}")
+
+        return avg_color.astype(int)
+
+def verify_skin(image):
+    try:
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+        lower_values = np.array([0, 40, 100], dtype=np.uint8)   # Adjust if needed
+        upper_values = np.array([20, 150, 230], dtype=np.uint8)
+
+        skin_mask = cv2.inRange(hsv, lower_values, upper_values)
+
+        kernel = np.ones((5, 5), np.uint8)
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel)
+
+        cv2.imshow("Skin Mask", skin_mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        return skin_mask
+
+    except:
+        print("Error in verify_skin")
+        return False
 
 
 # Model
@@ -64,46 +106,28 @@ def ImageProcessing():
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         print("Image successfully opened:", image.shape)
 
+        skin_mask = verify_skin(image)
+
+        if skin_mask is not None:
+            print("Skin detected successfully.")
+        else:
+            return jsonify({"error": "No skin detected (maybe eyes, hair, or background)."}), 400
+
     except Exception as e:
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+    
 
-    height, width, _ = image.shape
+    RGB = extract_colours(image, skin_mask)
+    print("RGB values: ", RGB)
 
-    # cropping and downscaling
+    def get_lab(rgb):
+        bgr = np.uint8([[rgb]])
+        lab = cv2.cvtColor(bgr, cv2.COLOR_RGB2LAB)
+        return lab[0][0] 
 
-    mid_width, mid_height = int(width / 2), int(height / 2)
+    Lab = get_lab(RGB)
 
-    crop_size = 100
-    if width >= 200 and height >= 200:
-        croppedImage = image[mid_height - crop_size:mid_height + crop_size, mid_width - crop_size:mid_width + crop_size]
-    else:
-        croppedImage = image  # Skip cropping for small images
-
-    target_height = 120
-    scale = height/target_height
-
-    if height > target_height:
-        scale = height / target_height
-        downscaledImage = cv2.resize(croppedImage, (int(width / scale), target_height), interpolation=cv2.INTER_AREA)
-    else:
-        downscaledImage = croppedImage  # Skip resizing for small images
-
-    image = downscaledImage
-
-
-    def RGB_values(image):
-        RGBValues = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        print("RGB: ", RGBValues)
-        return np.mean(RGBValues.reshape(-1, 3), axis=0)
-    def Lab_values(image):
-        LabValues = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
-        h, w, _ = LabValues.shape
-        central = LabValues[h//4:h*3//4, w//4:w*3//4] # to get the center point
-        print("Lab: ", LabValues)
-        return np.mean(central, axis=(0, 1)) 
-
-    RGB = RGB_values(image)
-    Lab = Lab_values(image)
+    print("Lab values: ", Lab)
 
     def get_hex(R,G,B):
         return "#{:02x}{:02x}{:02x}".format(R, G, B)
@@ -156,10 +180,12 @@ def ImageProcessing():
     shades_sorted = shades.sort_values(by="delta_e", ascending=True) # sort database according to data
 
     top_20 = shades_sorted.head(20) # find top 20 closest shades
-    print("Top ten closest matches: ", top_20)
+    print("Top twenty closest matches: ", top_20)
 
     top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product']].to_dict(orient="records")
     print(top_20_info)
+
+    print("Delta_e values: ", top_20['delta_e'])
 
     return jsonify(top_20_info)
 

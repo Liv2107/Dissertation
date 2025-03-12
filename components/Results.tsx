@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 25,
     zIndex: 1,
-    backgroundColor: '#E773B4',
+    backgroundColor: 'rgba(231, 115, 180, 0.8)', // #E773B4 in rgb to add transparency.
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
