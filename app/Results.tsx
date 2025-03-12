@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, Linking, Image, TouchableOpacity, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Link, useRouter  } from 'expo-router';
+import { Double } from 'react-native/Libraries/Types/CodegenTypes';
+import { CameraCapturedPicture } from 'expo-camera';
 
 
 interface Shade {
@@ -11,18 +12,17 @@ interface Shade {
     url: string;
     hex: string;
     product: string;
+    delta_e: Double;
   }
   
   // Define the type for the props that will be passed to Results component
   interface ResultsProps {
+    photo: CameraCapturedPicture;
     result: Shade[];  // result is an array of Shade objects
     goHome: () => void;
   }
   
-  const Results: React.FC<ResultsProps> = ({ result, goHome }) => {
-
-    const router = useRouter();
-    console.log(router);
+  const Results: React.FC<ResultsProps> = ({ photo, result, goHome }) => {
 
     return (
       <View style={styles.container}>
@@ -34,6 +34,14 @@ interface Shade {
 
 
         <Text style={styles.title}>Top 20 Closest Shades</Text>
+
+        <View style={styles.box}>
+            <Image
+                style={styles.photoContainer}
+                source={{uri: 'data:image/jpg;base64,' + photo.base64}}
+            />
+        </View>
+
   
         <FlatList
           data={result}  // Result will be an array of Shade objects
@@ -51,8 +59,9 @@ interface Shade {
                 {/* Brand and Name */}
                 <Text style={styles.brand}>{item.brand}</Text>
                 <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.delta}>Delta E: {item.delta_e.toFixed(2)}</Text>
   
-                </View>
+              </View>
 
             </View>
           )}
@@ -84,6 +93,22 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   home: {
+  },
+  box: {
+    borderRadius: 15,
+    padding: 1,
+    marginBottom: 15,
+    width: '95%',
+    height: '40%',
+    backgroundColor: 'darkgray',
+    justifyContent: 'center',
+    alignItems: "center",
+    alignSelf: 'center',
+  },  
+  photoContainer: {
+    width: '95%',
+    height: '95%',
+    borderRadius: 15
   },
   title: {
     paddingTop: 25,
@@ -126,6 +151,11 @@ const styles = StyleSheet.create({
     color: 'black',
     marginBottom: 5,
   },
+  delta: {
+    fontSize: 12,
+    color: 'black',
+    marginBottom: 5,
+  }
 });
 
 export default Results;

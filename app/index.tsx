@@ -162,7 +162,7 @@ export default function Camera() {
 
   if (result) {
     // If there are results, render the Results component and pass results from the back-end.
-    return <Results result={result} goHome={goHome} />;
+    return <Results photo={photo} result={result} goHome={goHome} />;
   }
 
   if (photo) {

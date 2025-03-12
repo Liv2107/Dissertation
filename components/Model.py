@@ -182,7 +182,7 @@ def ImageProcessing():
     top_20 = shades_sorted.head(20) # find top 20 closest shades
     print("Top twenty closest matches: ", top_20)
 
-    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product']].to_dict(orient="records")
+    top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product', 'delta_e']].to_dict(orient="records")
     print(top_20_info)
 
     print("Delta_e values: ", top_20['delta_e'])
