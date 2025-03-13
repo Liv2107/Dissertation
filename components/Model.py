@@ -56,18 +56,18 @@ def verify_skin(image):
     try:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        lower_values = np.array([0, 40, 100], dtype=np.uint8)   # Adjust if needed
-        upper_values = np.array([20, 150, 230], dtype=np.uint8)
+        lower_values = np.array([0, 40, 100], dtype=np.uint8)
+        upper_values = np.array([20, 150, 230], dtype=np.uint8) # skin tone values. 
 
         skin_mask = cv2.inRange(hsv, lower_values, upper_values)
 
         kernel = np.ones((5, 5), np.uint8)
         skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
-        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel)
+        skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel) # noise reduction
 
-        #cv2.imshow("Skin Mask", skin_mask)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
+        cv2.imshow("Skin Mask", skin_mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
         return skin_mask
 
@@ -145,6 +145,8 @@ def ImageProcessing():
 
     lightness = find_lightness(Lab)
 
+
+
     # convert hex values to lab to find lightness for delta e calculation
 
     def hex2lab(hex):
@@ -179,7 +181,7 @@ def ImageProcessing():
     shades["delta_e"] = shades["lab"].apply(delta_e)
     shades_sorted = shades.sort_values(by="delta_e", ascending=True) # sort database according to data
 
-    top_20 = shades_sorted.head(20) # find top 20 closest shades
+    top_20 = shades_sorted.head(20) # top 20 closest shades
     print("Top twenty closest matches: ", top_20)
 
     top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product', 'delta_e']].to_dict(orient="records")
@@ -192,8 +194,3 @@ def ImageProcessing():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-# TODO:
-#     -   home button functioning
-#     -   filtering system - search by brand.
