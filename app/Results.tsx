@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Linking, Image, TouchableOpacity, Pre
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Double } from 'react-native/Libraries/Types/CodegenTypes';
 import { CameraCapturedPicture } from 'expo-camera';
+import { useFonts } from 'expo-font';
 
 
 interface Shade {
@@ -22,10 +23,17 @@ interface Shade {
     goHome: () => void;
   }
   
-  const Results: React.FC<ResultsProps> = ({ photo, result, goHome }) => {
+  const Results: React.FC<ResultsProps> = React.memo(({ photo, result, goHome }) => {
+
+    //console.log("Results component rendered", result);
+
+    const [fontsLoaded] = useFonts({
+      'Tourney-VariableFont': require('@/assets/fonts/Tourney-VariableFont_wdth_wght.ttf'),
+    });
 
     return (
       <View style={styles.container}>
+
 
           <Pressable style={styles.button} onPress={goHome}>
             <Icon style={styles.home} name="home" size={25} color="white" />
@@ -33,7 +41,7 @@ interface Shade {
 
 
 
-        <Text style={styles.title}>Top 20 Closest Shades</Text>
+        <Text style={styles.title}>20 Closest Shades</Text>
 
         <View style={styles.box}>
             <Image
@@ -68,13 +76,13 @@ interface Shade {
         />
       </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'black',
+    backgroundColor: 'rgb(69,69,69)',
   },
   button: {
     width: 50,
@@ -111,13 +119,14 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   title: {
+    fontFamily: 'Tourney-VariableFont', 
+    fontSize: 36, 
+    color: 'white', 
+    textAlign: 'center',
     paddingTop: 25,
     paddingBottom: 5,
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: 900,
     marginBottom: 15,
-    textAlign: 'center',
-    color: 'white',
   },
   card: {
     flexDirection: 'row',

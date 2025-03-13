@@ -65,9 +65,9 @@ def verify_skin(image):
         skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
         skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel)
 
-        cv2.imshow("Skin Mask", skin_mask)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow("Skin Mask", skin_mask)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         return skin_mask
 

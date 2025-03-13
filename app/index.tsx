@@ -2,21 +2,39 @@ import PhotoPreview from '@/components/PhotoPreview';
 import Results from './Results';
 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
+import LoadingScreen from '@/components/LoadingScreen';
+import LogoScreen from '@/components/LogoScreen';
 
 
 export default function Camera() {
 
     const [permission, requestPermission] = useCameraPermissions();
-    const [facing, setFacing] = useState<CameraType>('back');
+    const [facing, setFacing] = useState<CameraType>('front');
     const [photo, setPhoto] = useState<any>(null);
     const cameraRef = useRef<CameraView | null>(null);
     const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [loadingResults, setLoadingResults] = useState(false);
+    const [logo, setLogo] = useState(false);
 
+
+    useEffect(() => {
+      setLogo(true);
+      const timer = setTimeout(() => {
+        setLogo(false);
+      }, 3000);
+  
+      return () => clearTimeout(timer);
+    }, []);
+
+    if(logo){
+      return <LogoScreen />;
+    }
 
 
     // Pre-processing image before sending to the back-end server.
@@ -40,9 +58,9 @@ export default function Camera() {
           { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, }  // JPEG with less compression then using a small PNG image.
         );
     
-        console.log('Cropped image URI:', result.uri);
+        //console.log('Cropped image URI:', result.uri);
         
-        console.log("Rw: ", result.width, ". Rh: ", result.height)
+        //console.log("Rw: ", result.width, ". Rh: ", result.height)
 
         // URI of the cropped image
         return result.uri;
@@ -56,6 +74,8 @@ export default function Camera() {
 
     const backend = async () => {
 
+      setLoading(true);
+
       console.log(photo.uri);
       console.log(photo.name);
       console.log(photo.width);
@@ -65,6 +85,7 @@ export default function Camera() {
       if (!photo || !photo.uri) {
         console.error("Photo is undefined or null");
         alert("Photo is missing. Please check the photo variable.");
+        setLoading(false);
         return;
       }
 
@@ -73,6 +94,7 @@ export default function Camera() {
       if (!croppedUri) {
         console.log("Error in cropping.");
         alert("Missing cropped image.")
+        setLoading(false);
         return;
       }
       
@@ -87,6 +109,7 @@ export default function Camera() {
       } catch (error) {
         console.error("Error converting photo to file:", error);
         alert("Error converting photo to file. Check if URI is correct.");
+        setLoading(false);
         return;
       } 
     
@@ -105,6 +128,7 @@ export default function Camera() {
           if (!response.ok) {
             console.error("Failed to send the image: response not ok. - ", response.ok);
             alert("Failed to send the image");
+            setLoading(false);
             return;
           }
           return response.json();
@@ -112,10 +136,17 @@ export default function Camera() {
         .then(data => {
           console.log('Server response:', data); 
           setResult(data); // Set the results.
+          setLoading(false);
+
+          setLoadingResults(true); // Set results loading to true
+          setTimeout(() => {
+              setLoadingResults(false); // After the timeout, set it back to false
+          }, 0);
         })
         .catch((error) => {
           console.error('Error sending image:', error);
           alert('An error occurred. Please try again.');
+          setLoading(false);
         });
     };
 
@@ -160,6 +191,11 @@ export default function Camera() {
     setResult(null);
   };
 
+  if(loading || loadingResults){
+    console.log("Loading is true, showing LoadingScreen");
+    return <LoadingScreen />;
+  }
+
   if (result) {
     // If there are results, render the Results component and pass results from the back-end.
     return <Results photo={photo} result={result} goHome={goHome} />;
@@ -168,6 +204,8 @@ export default function Camera() {
   if (photo) {
     return <PhotoPreview photo={photo} recaptureImage={recaptureImage} backend={backend}/>;
   }
+
+  
 
   return (
     <View style={styles.container}>
