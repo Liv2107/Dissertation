@@ -6,6 +6,8 @@ import io
 from PIL import Image
 from werkzeug.utils import secure_filename
 import json
+from waitress import serve
+
 
 # Libraries
 import pandas as pd
@@ -21,7 +23,7 @@ from colormath.color_conversions import convert_color
 
 # API
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["exp://192.168.1.100:8081", "http://localhost:8081"])
 
 
 # Prerequisites
@@ -83,7 +85,8 @@ def ImageProcessing():
 
     # Loading dataset.
     try:
-        shades = pd.read_csv('Datasets/allCategories.csv')
+        dataset_path = os.path.join(os.path.dirname(__file__), 'Datasets', 'allCategories.csv')
+        shades = pd.read_csv(dataset_path)
     except FileNotFoundError:
         return jsonify({"error": "Dataset not found"}), 500
 
@@ -202,4 +205,4 @@ def ImageProcessing():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    serve(app, host="0.0.0.0", port=5000)

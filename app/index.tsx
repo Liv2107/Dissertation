@@ -95,7 +95,8 @@ export default function Camera() {
       }
       
 
-      const backend_url = "http://192.168.1.100:5000/top_20"; // local IP / API location.
+      //const backend_url = "http://192.168.1.100:5000/top_20"; // local IP / API location.
+      const backend_url = "https://dissertation-97dz.onrender.com/top_20";
 
       let photoFile;
       try {
