@@ -17,9 +17,11 @@ import os
 import random
 
 # Colour similarity - eg - Delta E or euclidean distance with rgb but delta is a lot more accurate. 
-from colormath.color_diff import delta_e_cie2000
+from colormath.color_diff import _get_lab_color1_vector
+from colormath.color_diff import _get_lab_color2_matrix
 from colormath.color_objects import sRGBColor, LabColor
 from colormath.color_conversions import convert_color
+from colormath import color_diff_matrix
 
 # API
 app = Flask(__name__)
@@ -176,9 +178,17 @@ def ImageProcessing():
     def delta_e(value):
         if not isinstance(value, LabColor):
             return np.nan 
+        
+        def delta_e_cie2000_local(color1, color2, Kl=1, Kc=1, Kh=1):
+
+            color1_vector = _get_lab_color1_vector(color1)
+            color2_matrix = _get_lab_color2_matrix(color2)
+            delta_e = color_diff_matrix.delta_e_cie2000(
+                color1_vector, color2_matrix, Kl=Kl, Kc=Kc, Kh=Kh)[0]
+            return delta_e
     
         try:
-            diff = delta_e_cie2000(Lab_Color, value) 
+            diff = delta_e_cie2000_local(Lab_Color, value) 
         
             if isinstance(diff, (float, int)):
                 return diff
