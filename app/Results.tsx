@@ -25,7 +25,6 @@ interface Shade {
   
   const Results: React.FC<ResultsProps> = React.memo(({ photo, result, goHome }) => {
 
-    //console.log("Results component rendered", result);
 
     const [fontsLoaded] = useFonts({
       'Tourney-VariableFont': require('@/assets/fonts/Tourney-VariableFont_wdth_wght.ttf'),

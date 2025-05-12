@@ -23,6 +23,7 @@ from colormath.color_conversions import convert_color
 app = Flask(__name__)
 CORS(app)
 
+
 # Prerequisites
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -47,8 +48,8 @@ def extract_colours(image, skin_mask, num=5):
 
         avg_color = np.mean(color_samples, axis=0) # average of them 5 pixels.
 
-        print(f"Extracted Colors (RGB): {color_samples}")
-        print(f"Average Skin Color (RGB): {avg_color.astype(int)}")
+        #print(f"Extracted Colors (RGB): {color_samples}")
+        #print(f"Average Skin Color (RGB): {avg_color.astype(int)}")
 
         return avg_color.astype(int)
 
@@ -61,13 +62,13 @@ def verify_skin(image):
 
         skin_mask = cv2.inRange(hsv, lower_values, upper_values)
 
-        kernel = np.ones((5, 5), np.uint8)
+        kernel = np.ones((3, 3), np.uint8)
         skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_OPEN, kernel)
         skin_mask = cv2.morphologyEx(skin_mask, cv2.MORPH_CLOSE, kernel) # noise reduction
 
-        cv2.imshow("Skin Mask", skin_mask)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow("Skin Mask", skin_mask)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         return skin_mask
 
@@ -106,7 +107,15 @@ def ImageProcessing():
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         print("Image successfully opened:", image.shape)
 
+        #image1 = cv2.imread('../assets/images/jacob.jpeg', cv2.IMREAD_COLOR)
+        #image2 = cv2.imread('../assets/images/mason.jpeg', cv2.IMREAD_COLOR)
+        #image3 = cv2.imread('../assets/images/person1.jpg', cv2.IMREAD_COLOR)
+        #image4 = cv2.imread('../assets/images/person2.jpg', cv2.IMREAD_COLOR)
+
         skin_mask = verify_skin(image)
+        #skin_mask1 = verify_skin(image1)
+        #skin_mask2 = verify_skin(image2)
+        #skin_mask3 = verify_skin(image4)
 
         if skin_mask is not None:
             print("Skin detected successfully.")
@@ -118,7 +127,7 @@ def ImageProcessing():
     
 
     RGB = extract_colours(image, skin_mask, 50000)
-    print("RGB values: ", RGB)
+
 
     def get_lab(rgb):
         bgr = np.uint8([[rgb]])
@@ -127,7 +136,7 @@ def ImageProcessing():
 
     Lab = get_lab(RGB)
 
-    print("Lab values: ", Lab)
+    #print("Lab values: ", Lab)
 
     def get_hex(R,G,B):
         return "#{:02x}{:02x}{:02x}".format(R, G, B)
@@ -182,12 +191,12 @@ def ImageProcessing():
     shades_sorted = shades.sort_values(by="delta_e", ascending=True) # sort database according to data
 
     top_20 = shades_sorted.head(20) # top 20 closest shades
-    print("Top twenty closest matches: ", top_20)
+    #print("Top twenty closest matches: ", top_20)
 
     top_20_info = top_20[['brand', 'name', 'imgSrc', 'url', 'hex', 'product', 'delta_e']].to_dict(orient="records")
-    print(top_20_info)
+    #print(top_20_info)
 
-    print("Delta_e values: ", top_20['delta_e'])
+    #print("Delta_e values: ", top_20['delta_e'])
 
     return jsonify(top_20_info)
 

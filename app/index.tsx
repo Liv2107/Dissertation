@@ -57,10 +57,6 @@ export default function Camera() {
           [{ crop: { originX: x, originY: y, width: w, height: h } },],
           { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, }  // JPEG with less compression then using a small PNG image.
         );
-    
-        //console.log('Cropped image URI:', result.uri);
-        
-        //console.log("Rw: ", result.width, ". Rh: ", result.height)
 
         // URI of the cropped image
         return result.uri;
