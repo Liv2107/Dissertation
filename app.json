@@ -16,7 +16,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/Blend.jpg",
         "backgroundColor": "#E773B4"
-      }
+      },
+      "package": "com.olivia_expo.Blend"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "348be2e9-6932-4bdf-b0fd-0c373e2e103e"
+      }
     }
   }
 }
